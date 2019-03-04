@@ -21,15 +21,20 @@ abstract class DBItem {
         $numeric_key = "{$table}_id";
         $text_key = "{$table}_name";
 
-        // Create the query
-        $query = "SELECT * FROM $table WHERE $numeric_key=? OR $text_key=?;";
-        $args = array(intval($key), $key);
+        if (is_array($key)) {
+            // If we're passed an array, don't hit the DB again and just save the array
+            $result = $key;
+        } else {
+            // Create the query
+            $query = "SELECT * FROM $table WHERE $numeric_key=? OR $text_key=?;";
+            $args = array(intval($key), $key);
 
-        // Send to the DB
-        $result = DB::queryRow($query, $args);
+            // Send to the DB
+            $result = DB::queryRow($query, $args);
 
-        if($result === false) {
-            throw new \Exception("No matching row in '$table' for '$key'.");
+            if($result === false) {
+                throw new \Exception("No matching row in '$table' for '$key'.");
+            }
         }
 
         // Extract the field values
